@@ -1,0 +1,45 @@
+
+body {
+  background-image: url("/static/images/background/background.jpg");
+}
+
+
+html,body{
+    height:100%;
+}
+
+/* makes  rows of main container fill whole height of page */
+
+#main-container > .row {
+    min-height: 100vh;
+}
+
+/* removes some of the margins between row elements and edges of page */
+
+.container-fluid {
+    padding: 0px;
+}
+
+/* position play cards off screen for transition to in screen at deal */
+
+.play-card {
+
+position:relative;
+left:-300px;
+margin: 3px;
+
+}
+
+/* animated chips box */
+
+#chips {
+position:relative;
+right: -500px;
+}
+
+/* make rounded chips slightly transparent when you hover over them */
+.rounded:hover {
+  opacity: 0.3;
+}
+
+
