@@ -42,4 +42,11 @@ right: -500px;
   opacity: 0.3;
 }
 
+/* centers column in the middle of a row */
+
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}
+
 

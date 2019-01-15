@@ -2,7 +2,6 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room
 import blackjack
 
-
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] ='secret'
@@ -10,7 +9,6 @@ app.config['SECRET_KEY'] ='secret'
 socketio = SocketIO(app)
 
 GAMES = {}
-
 
 @app.route('/')
 def index():
@@ -93,11 +91,18 @@ def render_card(target_hand, card):
         socketio.emit('render_card', data=(target_hand ,card.image_map), room=room)
 
 def broadcast_position():
-    '''Broadcasts the player/dealer position (bust, player/dealer count) after running the '''
+
     pass
 
 def evaluate_table():
-    '''Determines if player'''
+    '''
+    Determines if player is bust, able to split, double etc.
+    Broadcasts the player/dealer position to the table (bust, player/dealer count). Renders the control buttons
+    accordingly
+    '''
+    room = request.sid
+
+    socketio.emit('render_control', data=('hitbutton', 'staybutton'), room=room)
 
 
 @socketio.on('deal')
@@ -110,20 +115,47 @@ def deal():
     room = request.sid
 
     if GAMES[room].player.bet == 0:
-        socketio.emit('min_bet_warning')
+        socketio.emit('min_bet_warning', room=room)
 
     else:
         for x in range(2):
             GAMES[room].draw_card('dealer')
-            GAMES[room].draw_card('player')
+            player_card = GAMES[room].draw_card('player')
+            render_card('player-hand', player_card)
 
-        for card in GAMES[room].player.cards: # Render both player cards face up
-            render_card('player-hand', card)
+        dealer_card = GAMES[room].draw_card('dealer') # one face up card for dealer
+        render_card('dealer-hand', dealer_card)
+        GAMES[room].draw_card('dealer')
+        render_card('dealer-hand', 'back_of_card') # and one hole card
 
-        render_card('dealer-hand', GAMES[room].dealer.cards[0]) # Render one face up and one face down card to the dealer
-        render_card('dealer-hand', 'back_of_card')
-        socketio.emit('slide_in_chips') # slide chip set back out of view
-    evaluate_table()
+        socketio.emit('slide_in_chips', room=room) # slide chip set back out of view
+        evaluate_table()
+
+@socketio.on('hit')
+def hit(target_hand):
+    '''
+    Hits target hand (dealer or player) by drawing a card and adding it to that hand
+    '''
+    room = request.sid
+    if target_hand == 'player-hand':
+        player_card = GAMES[room].draw_card('player')
+        render_card('player-hand', player_card)
+
+    else:
+
+        dealer_card = GAMES[room].draw_card('dealer')
+        render_card('dealer-hand', dealer_card)
+
+@socketio.on('stay')
+def stay():
+    '''
+    Triggers the dealer to take his turn
+    '''
+    room = request.sid
+    hole_card = GAMES[room].dealer.cards[-1] # hole card is last element of dealer card list
+    socketio.emit('flip_hole', hole_card.image_map, room=room)
+
+
 
 
 

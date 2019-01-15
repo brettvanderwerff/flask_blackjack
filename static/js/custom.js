@@ -33,6 +33,18 @@ socket.on('render_control', function(...args) {
 
         }
 
+        if (args[i] == 'hitbutton') {
+
+            hitButton()
+
+        }
+
+        if (args[i] == 'staybutton') {
+
+            stayButton()
+
+        }
+
     }
 
 
@@ -87,6 +99,17 @@ socket.on('min_bet_warning', function() {
 
 })
 
+// flips dealer hole card in the dealers hand
+
+socket.on('flip_hole', function(image_map) {
+
+    var hole_card = document.getElementById('hole-card')
+    hole_card.src = '/static/images/cards/' + image_map
+
+    dealCardAudio()
+
+})
+
 // play error sound
 
 socket.on('play_error', function() {
@@ -103,16 +126,23 @@ socket.on('play_error', function() {
 socket.on('render_card', function(target_hand, image_map) {
 
     var hand = document.getElementById(target_hand)
-    var card = document.createElement('img')
-    card.src = '/static/images/cards/' + image_map
-    card.className = 'play-card'
-    card.width = 112
-    card.height = 162
-    hand.appendChild(card)
+    var new_card = document.createElement('img')
+
+    if (image_map == 'back_of_card.svg') {
+
+        new_card.id = 'hole-card' // set special id for hold card so it can be flipped later
+
+    }
+
+    new_card.src = '/static/images/cards/' + image_map
+    new_card.className = 'play-card'
+    new_card.width = 112
+    new_card.height = 162
+    hand.appendChild(new_card)
     setTimeout(function() {
 
-       card.style.transition = "left .5s linear 0s"
-       card.style.left = "0px"}, 0)
+       new_card.style.transition = "left .5s linear 0s"
+       new_card.style.left = "0px"}, 0)
     dealCardAudio()
 
 })
@@ -201,6 +231,22 @@ function makeButton(label, id, onclick) {
 function dealButton() {
 
     makeButton('Deal', 'dealbutton', function() { socket.emit('deal') } )
+
+}
+
+// makes a hit button for the control panel
+
+function hitButton() {
+
+    makeButton('Hit', 'hitbutton', function() { socket.emit('hit', 'player-hand') } )
+
+}
+
+// makes a stay button for the control panel
+
+function stayButton() {
+
+    makeButton('Stay', 'staybutton', function() { socket.emit('stay') } )
 
 }
 

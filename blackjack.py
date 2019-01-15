@@ -73,5 +73,7 @@ class Game():
         elif target == 'dealer':
             self.dealer.cards.append(card_draw)
 
+        return card_draw
+
 
 
