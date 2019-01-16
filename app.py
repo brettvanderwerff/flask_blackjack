@@ -90,17 +90,16 @@ def render_card(target_hand, card):
     else:
         socketio.emit('render_card', data=(target_hand ,card.image_map), room=room)
 
-def broadcast_position():
 
-    pass
-
-def evaluate_table():
+def render_table():
     '''
     Determines if player is bust, able to split, double etc.
     Broadcasts the player/dealer position to the table (bust, player/dealer count). Renders the control buttons
     accordingly
     '''
     room = request.sid
+    GAMES[room].update_positions()
+    socketio.emit('update_totals', data=(GAMES[room].player.total, GAMES[room].dealer.total), room=room)
 
     socketio.emit('render_control', data=('hitbutton', 'staybutton'), room=room)
 
@@ -129,7 +128,7 @@ def deal():
         render_card('dealer-hand', 'back_of_card') # and one hole card
 
         socketio.emit('slide_in_chips', room=room) # slide chip set back out of view
-        evaluate_table()
+        render_table()
 
 @socketio.on('hit')
 def hit(target_hand):
@@ -154,8 +153,6 @@ def stay():
     room = request.sid
     hole_card = GAMES[room].dealer.cards[-1] # hole card is last element of dealer card list
     socketio.emit('flip_hole', hole_card.image_map, room=room)
-
-
 
 
 

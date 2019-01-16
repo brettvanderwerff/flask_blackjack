@@ -49,4 +49,38 @@ right: -500px;
     margin: 0 auto;
 }
 
+/* apply margin to all control buttons */
+
+.control-button {
+
+    margin-right: 5px;
+    margin-left: 5px;
+
+}
+
+/* circle for the player and dealer count total */
+
+.circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 25px;
+  color: #000;
+  line-height: 50px;
+  text-align: center;
+  background: #bbb;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+/* title for dealer total or player total */
+
+.total-title {
+
+    font-size: 25px;
+    font-weight: bold;
+    color: #FFFFFF
+
+}
+
 

@@ -61,6 +61,19 @@ socket.on('slide_out_chips', function() {
 
 })
 
+
+// renders the running total for the dealer and the player
+
+socket.on('update_totals', function(player_total, dealer_total) {
+
+    var player_total_elem = document.getElementById('player-total');
+    player_total_elem.innerText = player_total
+
+    var dealer_total_elem = document.getElementById('dealer-total');
+    dealer_total_elem.innerText = dealer_total
+
+})
+
 // slide in animation for chip set
 
 socket.on('slide_in_chips', function() {
@@ -214,8 +227,8 @@ function clearDiv(parent_div) {
 function makeButton(label, id, onclick) {
 
     var button_container = document.getElementById('button-container')
-    var div = document.createElement('div')
-    div.id = 'deal_button-container'
+    var div = document.createElement('span')
+    div.className = 'control-button'
     var button = document.createElement("button")
     button.innerText = label
     button.onclick = onclick
