@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room
 import blackjack
+import time
 
 app = Flask(__name__)
 
@@ -22,6 +23,8 @@ def clear_previous_round():
     room = request.sid
     socketio.emit('clear_previous_round', room=room)
 
+
+@socketio.on('new_round')
 def new_round():
     '''
     Starts a new round by clearing the previous rounds cards/buttons and sliding out the chips for the player
@@ -41,6 +44,7 @@ def start_game():
     '''
     room = request.sid
     join_room(room)
+    socketio.emit('start_music', room=room)
     GAMES[room] = blackjack.Game(blackjack.Dealer, blackjack.Deck, blackjack.Player)
     new_round()
 
@@ -90,6 +94,25 @@ def render_card(target_hand, card):
     else:
         socketio.emit('render_card', data=(target_hand ,card.image_map), room=room)
 
+def end_round():
+    '''Determines who wins the round, exchanges bet money accordingly.'''
+    room = request.sid
+    socketio.emit('render_control', data=('newroundbutton',), room=room)
+    time.sleep(1)
+    pass
+
+def handle_bust():
+    '''
+    Sends out the appropriate bust message, clears the table, and evaluates the winner of the round.
+    '''
+    room = request.sid
+    if GAMES[room].player.bust:
+        socketio.emit('show_notification', 'player_busted', room=room)
+
+    end_round()
+
+
+
 
 def render_table():
     '''
@@ -99,9 +122,13 @@ def render_table():
     '''
     room = request.sid
     GAMES[room].update_positions()
-    socketio.emit('update_totals', data=(GAMES[room].player.total, GAMES[room].dealer.total), room=room)
+    if GAMES[room].player.bust or GAMES[room].player.bust:
+        handle_bust()
 
-    socketio.emit('render_control', data=('hitbutton', 'staybutton'), room=room)
+    else:
+
+        socketio.emit('update_totals', data=(GAMES[room].player.total, GAMES[room].dealer.total), room=room)
+        socketio.emit('render_control', data=('hitbutton', 'staybutton'), room=room)
 
 
 @socketio.on('deal')
@@ -118,7 +145,6 @@ def deal():
 
     else:
         for x in range(2):
-            GAMES[room].draw_card('dealer')
             player_card = GAMES[room].draw_card('player')
             render_card('player-hand', player_card)
 
@@ -127,7 +153,7 @@ def deal():
         GAMES[room].draw_card('dealer')
         render_card('dealer-hand', 'back_of_card') # and one hole card
 
-        socketio.emit('slide_in_chips', room=room) # slide chip set back out of view
+        socketio.emit('slide_in_chips', room=room) # slide chip set back out of view ToDo probably just have these all grey out and remove onclick after placing bet
         render_table()
 
 @socketio.on('hit')
@@ -144,6 +170,7 @@ def hit(target_hand):
 
         dealer_card = GAMES[room].draw_card('dealer')
         render_card('dealer-hand', dealer_card)
+    render_table()
 
 @socketio.on('stay')
 def stay():

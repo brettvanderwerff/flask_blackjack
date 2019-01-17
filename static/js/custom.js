@@ -1,3 +1,11 @@
+window.onload = function() {
+
+    song = loopMusic()
+    song.play()
+
+    }
+
+
 var socket = io.connect('http://127.0.0.1:5000')
 
 
@@ -9,13 +17,19 @@ socket.on('connect', function(){
 
 })
 
-// clears the left over cards and control panel buttons from a previous round
+// clears the left over cards, notification images (if they exist), and control panel buttons from a previous round
 
 socket.on('clear_previous_round', function() {
 
     clearDiv('button-container')
     clearDiv('dealer-hand')
     clearDiv('player-hand')
+
+    if (document.getElementById("notification-image") != null) {
+
+        clearImg()
+
+    }
 
 })
 
@@ -42,6 +56,12 @@ socket.on('render_control', function(...args) {
         if (args[i] == 'staybutton') {
 
             stayButton()
+
+        }
+
+        if (args[i] == 'newroundbutton') {
+
+            newRoundButton()
 
         }
 
@@ -132,8 +152,6 @@ socket.on('play_error', function() {
 })
 
 
-
-
 // Renders a card in the hand of the target_hand (dealer or player)
 
 socket.on('render_card', function(target_hand, image_map) {
@@ -160,11 +178,46 @@ socket.on('render_card', function(target_hand, image_map) {
 
 })
 
+// shows notification image in middle of screen for if player busted, won etc
+
+socket.on('show_notification', function(notification) {
+
+    var img = document.createElement('img')
+    img.id = "notification-image"
+    img.src = "static/images/notifications/" + notification + ".png"
+    document.getElementsByTagName('body')[0].appendChild(img)
+
+
+})
+
+// toggle music pause when clicking audio button
+
+toggleMusic = function(song) {
+
+    var elem = document.getElementById('audio')
+
+    if (elem.style.opacity == .3) {
+
+        elem.style.opacity = 1
+        song.play()
+
+    }
+
+    else {
+
+        elem.style.opacity = .3
+        song.pause()
+
+    }
+
+
+}
+
 // play error sound
 
 errorAudio = function() {
 
-    myAudio = new Audio('/static/audio/error.mp3')
+    var myAudio = new Audio('/static/audio/error.mp3')
     myAudio.play()
 
 }
@@ -173,7 +226,7 @@ errorAudio = function() {
 
 dealCardAudio = function() {
 
-    myAudio = new Audio('/static/audio/deal.wav')
+    var myAudio = new Audio('/static/audio/deal.wav')
     myAudio.play()
 
 }
@@ -182,7 +235,7 @@ dealCardAudio = function() {
 
 chipAudio = function() {
 
-    myAudio = new Audio('/static/audio/chip.mp3')
+    var myAudio = new Audio('/static/audio/chip.mp3')
     myAudio.play()
 
 }
@@ -191,14 +244,12 @@ chipAudio = function() {
 
 loopMusic = function() {
 
-    myAudio = new Audio('/static/audio/music.mp3');
-    myAudio.addEventListener('ended', function() {
-    this.currentTime = 0;
-    this.play();
-    }, false);
-    myAudio.play();
+    var song = new Audio('/static/audio/music.mp3')
+    song.loop = true
+    return song
 
 }
+
 
 // play card shuffle sound
 
@@ -219,6 +270,16 @@ function clearDiv(parent_div) {
     while (parent.firstChild) {
         parent.removeChild(parent.firstChild)
     }
+
+}
+
+// removes an image from the body (used for removing notification images)
+
+function clearImg() {
+
+    var body = document.getElementsByTagName('body')[0]
+    var img = document.getElementById("notification-image")
+    body.removeChild(img)
 
 }
 
@@ -252,6 +313,14 @@ function dealButton() {
 function hitButton() {
 
     makeButton('Hit', 'hitbutton', function() { socket.emit('hit', 'player-hand') } )
+
+}
+
+// makes a new round button for the control panel
+
+function newRoundButton() {
+
+    makeButton('New Round', 'newroundbutton', function() { socket.emit('new_round') } )
 
 }
 

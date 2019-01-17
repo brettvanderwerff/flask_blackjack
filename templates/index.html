@@ -7,7 +7,8 @@
         <div class="col-sm-8 h-100" id="hands-container">
             <div class="row h-25">
                 <div class="col-sm-8 col-centered align-self-center">
-                    <div class="circle" id="dealer-total">0</div><span class="total-title">Dealer Total</span>
+                    <div class="circle" id="dealer-total">0</div>
+                    <span class="total-title">Dealer Total</span>
                 </div>
             </div>
             <div class="row h-25">
@@ -16,7 +17,8 @@
             </div>
             <div class="row h-25">
                 <div class="col-sm-8 col-centered align-self-center">
-                    <div class="circle" id="player-total">0</div><span class="total-title">Player Total</span>
+                    <div class="circle" id="player-total">0</div>
+                    <span class="total-title">Player Total</span>
                 </div>
             </div>
             <div class="row h-25">
@@ -57,12 +59,20 @@
             </div>
             <div class="row h-25">
                 <!-- Start of Controls Column -->
-                <div class="col-sm-12 text-center">
-                    <div class="card text-center">
+                <div class="col-sm-12">
+                    <div class="card">
                         <div class="card-header">
-                            Controls
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <img src="static/images/misc/audio.png" width="25" height="25" id="audio"
+                                         onclick="toggleMusic(song)">
+                                </div>
+                                <div class="col-sm-4 text-center">
+                                    Controls
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body text-center">
                             <div id="button-container"></div>
                         </div>
                     </div>
@@ -94,10 +104,10 @@
                                 <img src="static/images/chips/twenty.png" class="rounded" width="75"
                                      height="75" onclick="chipAudio();socket.emit('add_bet', 20)">
 
-                                <img src="static/images/chips/forty.png" class="rounded"  width="75"
+                                <img src="static/images/chips/forty.png" class="rounded" width="75"
                                      height="75" onclick="chipAudio();socket.emit('add_bet', 40)">
 
-                                <img src="static/images/chips/eighty.png" class="rounded"  width="75"
+                                <img src="static/images/chips/eighty.png" class="rounded" width="75"
                                      height="75" onclick="chipAudio();socket.emit('add_bet', 80)">
 
                             </div>
@@ -113,28 +123,27 @@
     <!-- End of Main Row -->
 </div>
 <!-- The Modal -->
-<!-- The Modal -->
 <div class="modal" id="minBet">
-  <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Minimum Bet Required</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Minimum Bet Required</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
 
-      <!-- Modal body -->
-      <div class="modal-body text-center">
-        Please place at least a $1 bet...
-      </div>
+            <!-- Modal body -->
+            <div class="modal-body text-center">
+                Please place at least a $1 bet...
+            </div>
 
-      <!-- Modal footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
 
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

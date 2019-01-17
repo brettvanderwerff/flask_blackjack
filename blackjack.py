@@ -81,21 +81,7 @@ class Dealer(Player):
             self.total = self.cards[0].value
 
         else:
-
-            if not 'ace' in [card.face for card in self.cards]:
-                self.total = sum([card.value for card in self.cards])
-            else:
-                running_total = sum([card.value for card in self.cards if card.face != 'ace'])
-                for card in self.cards:
-                    if card.face == 'ace':
-                        if running_total + card.value <= 21:
-                            running_total += card.value
-                        else:
-                            running_total += 1
-                self.total = running_total
-
-            if self.total > 21:
-                self.bust = True
+            super().update_position()
 
 
 
