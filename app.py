@@ -32,7 +32,7 @@ def new_round():
     '''
     room = request.sid
     clear_previous_round()
-    socketio.emit('slide_out_chips')
+    socketio.emit('activate_chips')
     socketio.emit('render_control', data=('dealbutton',), room=room)
 
 
@@ -98,7 +98,6 @@ def end_round():
     '''Determines who wins the round, exchanges bet money accordingly.'''
     room = request.sid
     socketio.emit('render_control', data=('newroundbutton',), room=room)
-    time.sleep(1)
     pass
 
 def handle_bust():
@@ -110,8 +109,6 @@ def handle_bust():
         socketio.emit('show_notification', 'player_busted', room=room)
 
     end_round()
-
-
 
 
 def render_table():
@@ -153,7 +150,7 @@ def deal():
         GAMES[room].draw_card('dealer')
         render_card('dealer-hand', 'back_of_card') # and one hole card
 
-        socketio.emit('slide_in_chips', room=room) # slide chip set back out of view ToDo probably just have these all grey out and remove onclick after placing bet
+        socketio.emit('deactivate_chips', room=room) # slide chip set back out of view ToDo probably just have these all grey out and remove onclick after placing bet
         render_table()
 
 @socketio.on('hit')

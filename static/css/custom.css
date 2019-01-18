@@ -30,24 +30,13 @@ margin: 3px;
 
 }
 
-/* animated chips box */
-
-#chips {
-position:relative;
-right: -500px;
-}
 
 /* make rounded chips slightly transparent when you hover over them */
 .rounded:hover {
-  opacity: 0.3;
+  opacity: 0.3 !important;
 }
 
-/* centers column in the middle of a row */
 
-.col-centered{
-    float: none;
-    margin: 0 auto;
-}
 
 /* apply margin to all control buttons */
 

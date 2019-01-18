@@ -1,9 +1,14 @@
+// Starts playing backgound music when the player loads the page
+
+/*
 window.onload = function() {
 
     song = loopMusic()
-    song.play()
+
+    setTimeout(song.play(), 1000) // Needed to trick autoplay blockage by chrome
 
     }
+*/
 
 
 var socket = io.connect('http://127.0.0.1:5000')
@@ -14,6 +19,43 @@ socket.on('connect', function(){
 
     socket.emit('start_game')
 
+
+})
+
+// deactivates chip in chip box from being clicked on
+
+socket.on('deactivate_chips', function() {
+
+    var chips = document.getElementsByClassName('rounded')
+
+    for (var i = 0; i < chips.length; i++) {
+
+        chips[i].style.pointerEvents = 'none'
+        chips[i].style.opacity = 0.3
+
+    }
+
+    var bet_header = document.getElementById('bet-header')
+    bet_header.innerText = 'Your Bet is Placed!'
+
+})
+
+// activates chip in chip box, allowing chips to be clicked on
+
+socket.on('activate_chips', function() {
+
+    var chips = document.getElementsByClassName('rounded')
+
+    for (var i = 0; i < chips.length; i++) {
+
+        chips[i].style.pointerEvents = 'auto'
+        chips[i].style.opacity = 'initial'
+        console.log(chips[i].opacity)
+
+    }
+
+    var bet_header = document.getElementById('bet-header')
+    bet_header.innerText = 'Place You Bet!'
 
 })
 
