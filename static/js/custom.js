@@ -55,7 +55,7 @@ socket.on('activate_chips', function() {
     }
 
     var bet_header = document.getElementById('bet-header')
-    bet_header.innerText = 'Place You Bet!'
+    bet_header.innerText = 'Place Your Bet!'
 
 })
 

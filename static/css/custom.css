@@ -8,18 +8,6 @@ html,body{
     height:100%;
 }
 
-/* makes  rows of main container fill whole height of page */
-
-#main-container > .row {
-    min-height: 100vh;
-}
-
-/* removes some of the margins between row elements and edges of page */
-
-.container-fluid {
-    padding: 0px;
-}
-
 /* position play cards off screen for transition to in screen at deal */
 
 .play-card {
@@ -81,6 +69,16 @@ margin: 3px;
   transform: translate(-50%, -50%);
   width: 70%;
   height:auto;
+}
+
+/* creates overlap for dealt card images */
+
+.hand img {
+    margin-left: -20%;
+}
+
+.hand img:first-child {
+    margin-left: 0px;
 }
 
 
