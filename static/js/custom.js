@@ -50,7 +50,6 @@ socket.on('activate_chips', function() {
 
         chips[i].style.pointerEvents = 'auto'
         chips[i].style.opacity = 'initial'
-        console.log(chips[i].opacity)
 
     }
 
@@ -104,6 +103,12 @@ socket.on('render_control', function(...args) {
         if (args[i] == 'newroundbutton') {
 
             newRoundButton()
+
+        }
+
+        if (args[i] == 'doublebutton') {
+
+            doubleButton()
 
         }
 
@@ -371,6 +376,46 @@ function newRoundButton() {
 function stayButton() {
 
     makeButton('Stay', 'staybutton', function() { socket.emit('stay') } )
+
+}
+
+// gets the current players bet from the DOM
+
+function getCurrentBet() {
+
+    var current_bet = document.getElementById("bet")
+    var bet_increment_string = current_bet.innerText.slice(1)
+    var bet_increment_int = parseInt(bet_increment_string, 10)
+
+    return bet_increment_int
+
+}
+
+// removes a child element from the parent
+
+function removeChildFromParent(child_id) {
+
+    var child = document.getElementById(child_id)
+    child.parentNode.removeChild(child)
+
+}
+
+/*
+makes a double bet button for the control panel, allows the user to double their current bet, then deletes the double
+button and hits the player with another card then player stays
+*/
+function doubleButton() {
+
+
+    makeButton('Double Bet', 'doublebutton', function() {
+
+        bet_increment = getCurrentBet()
+        socket.emit('add_bet', bet_increment)
+        removeChildFromParent('doublebutton')
+        socket.emit('hit', 'player-hand')
+        socket.emit('stay')
+
+        })
 
 }
 

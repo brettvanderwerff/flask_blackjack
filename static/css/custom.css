@@ -74,7 +74,7 @@ margin: 3px;
 /* creates overlap for dealt card images */
 
 .hand img {
-    margin-left: -20%;
+    margin-left: -15%;
 }
 
 .hand img:first-child {

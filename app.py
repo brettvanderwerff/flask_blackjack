@@ -82,12 +82,13 @@ def add_bet(bet_increment):
     else:
         socketio.emit('play_error', room=room)
 
+
 def render_card(target_hand, card):
     '''
     Broadcasts a card to the hand of the target_hand (dealer or player)
     '''
     room = request.sid
-
+    time.sleep(.5)
     if card == 'back_of_card':
         socketio.emit('render_card', data=(target_hand, 'back_of_card.svg'), room=room)
 
@@ -125,7 +126,7 @@ def render_table():
     else:
 
         socketio.emit('update_totals', data=(GAMES[room].player.total, GAMES[room].dealer.total), room=room)
-        socketio.emit('render_control', data=('hitbutton', 'staybutton'), room=room)
+        socketio.emit('render_control', data=('hitbutton', 'staybutton', 'doublebutton'), room=room)
 
 
 @socketio.on('deal')
@@ -175,6 +176,7 @@ def stay():
     Triggers the dealer to take his turn
     '''
     room = request.sid
+    socketio.emit('render_control')
     hole_card = GAMES[room].dealer.cards[-1] # hole card is last element of dealer card list
     socketio.emit('flip_hole', hole_card.image_map, room=room)
 
