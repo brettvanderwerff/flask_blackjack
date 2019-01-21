@@ -37,6 +37,20 @@ class Player:
         self.bet = 0
         self.bank = 1000
 
+    def can_split(self):
+        '''
+        Determine if the first two cards dealt to the player are the same. If they are the same, the player
+        will be given the option to split
+        '''
+        return True if len(set([card.value for card in self.cards])) == 1 else False
+
+    def split(self):
+        '''
+        Splits the players hand
+        '''
+
+
+
     def update_position(self):
         '''
         Updates the players running total of cards. If the player has an ace, the ace has an assumed value of 11 unless
@@ -95,6 +109,7 @@ class Game():
         self.deck = Deck().cards
         self.player = Player()
         self.dealer = Dealer()
+        self.round = 0
 
     def draw_card(self, target):
         '''
@@ -113,10 +128,11 @@ class Game():
 
     def update_positions(self):
         '''
-        Updates the position of the dealer and the player simultaneously
+        Updates the position of the dealer and the player simultaneously. Increments the round attribute by one
         '''
         self.player.update_position()
         self.dealer.update_position()
+        self.round += 1
 
 
 

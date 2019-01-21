@@ -112,6 +112,12 @@ socket.on('render_control', function(...args) {
 
         }
 
+        if (args[i] == 'splitbutton') {
+
+            splitButton()
+
+        }
+
     }
 
 
@@ -340,7 +346,7 @@ function makeButton(label, id, onclick) {
     var button = document.createElement("button")
     button.innerText = label
     button.onclick = onclick
-    button.className = "btn btn-primary"
+    button.className = "btn btn-primary control-button"
     button.id = id
     div.appendChild(button)
     button_container.appendChild(div)
@@ -411,11 +417,20 @@ function doubleButton() {
 
         bet_increment = getCurrentBet()
         socket.emit('add_bet', bet_increment)
+        chipAudio()
         removeChildFromParent('doublebutton')
         socket.emit('hit', 'player-hand')
         socket.emit('stay')
 
         })
+
+}
+
+// makes a button giving the player the option to split
+
+function splitButton() {
+
+    makeButton('Split', 'splitbutton', function() { socket.emit('split') } )
 
 }
 

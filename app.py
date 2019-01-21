@@ -120,13 +120,17 @@ def render_table():
     '''
     room = request.sid
     GAMES[room].update_positions()
+    socketio.emit('update_totals', data=(GAMES[room].player.total, GAMES[room].dealer.total), room=room)
+
     if GAMES[room].player.bust or GAMES[room].player.bust:
         handle_bust()
 
-    else:
+    elif GAMES[room].round == 1 and GAMES[room].player.can_split():
+        socketio.emit('render_control', data=('hitbutton', 'staybutton', 'doublebutton', 'splitbutton'), room=room)
 
-        socketio.emit('update_totals', data=(GAMES[room].player.total, GAMES[room].dealer.total), room=room)
-        socketio.emit('render_control', data=('hitbutton', 'staybutton', 'doublebutton'), room=room)
+    else:
+        socketio.emit('render_control', data=('hitbutton', 'staybutton', 'doublebutton', 'splitbutton'), room=room)
+
 
 
 @socketio.on('deal')
@@ -151,7 +155,7 @@ def deal():
         GAMES[room].draw_card('dealer')
         render_card('dealer-hand', 'back_of_card') # and one hole card
 
-        socketio.emit('deactivate_chips', room=room) # slide chip set back out of view ToDo probably just have these all grey out and remove onclick after placing bet
+        socketio.emit('deactivate_chips', room=room)
         render_table()
 
 @socketio.on('hit')
