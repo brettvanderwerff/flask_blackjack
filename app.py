@@ -36,7 +36,7 @@ def new_round():
     socketio.emit('add_bet_container', 1, room=room)
     socketio.emit('add_count_container', 1, room=room)
     add_hand_to_dom('player', 1)
-    socketio.emit('render_control', data=('dealbutton',), room=room)
+    socketio.emit('render_control', data=(1, 'dealbutton',), room=room)
 
 
 @socketio.on('start_game')
@@ -87,10 +87,17 @@ def add_bet(bet_increment, hand_id):
 
 @socketio.on('split')
 def split():
-    '''Splits the players hand'''
+    '''
+    Splits the players hand. Makes new DOM elements for the bet container, count container, and the hand cards.
+    '''
     room = request.sid
-    add_hand_to_dom('player', 2)
     socketio.emit('add_bet_container', 2, room=room)
+    socketio.emit('add_count_container', 2, room=room)
+    add_hand_to_dom('player', 2)
+    GAMES[room].player.split_cards()
+    socketio.emit('transition_card')
+    hit('player-hand', 1)
+    hit('player-hand', 2)
 
 
 def render_card(target, card, hand_id):
@@ -130,17 +137,14 @@ def render_table():
     accordingly
     '''
     room = request.sid
-    socketio.emit('update_totals', data=(GAMES[room].player.hands[1].total, GAMES[room].dealer.hands[1].door_value), room=room)
+    socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].door_value), room=room)
 
-
-    if GAMES[room].round == 1 and GAMES[room].player.can_split():
-        socketio.emit('render_control', data=('hitbutton', 'staybutton', 'doublebutton', 'splitbutton'), room=room)
-
-    else:
-        socketio.emit('render_control', data=('hitbutton', 'staybutton', 'doublebutton', 'splitbutton'), room=room)
+    for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
+        socketio.emit('update_totals', data=('player', hand_id, GAMES[room].player.hands[hand_id].total), room=room)
+        socketio.emit('update_bet', data=(GAMES[room].player.hands[hand_id].bet, hand_id), room=room)
 
 def add_hand_to_dom(target, hand_id):
-    '''manipulates DOM to add a new player hand'''
+    '''manipulates DOM to add a new player hand, also updates game object to reflect the new hand'''
     target_hand = target + '-hand-' + str(hand_id)
     room = request.sid
     getattr(GAMES[room], target).add_hand(hand_id)
@@ -193,18 +197,20 @@ def deal_second_round():
     room = request.sid
     socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].door_value), room=room)
     socketio.emit('update_totals', data=('player', 1, GAMES[room].player.hands[1].total), room=room)
+    socketio.emit('render_control', data=(1, 'hitbutton', 'splitbutton'), room=room)
+
 
 
 
 @socketio.on('hit')
-def hit(target_hand):
+def hit(target_hand, hand_id):
     '''
     Hits target hand (dealer or player) by drawing a card and adding it to that hand
     '''
     room = request.sid
     if target_hand == 'player-hand':
-        player_card = GAMES[room].draw_card('player', 1)
-        render_card('player-hand', player_card, 1)
+        player_card = GAMES[room].draw_card('player', hand_id)
+        render_card('player-hand', player_card, hand_id)
 
     else:
 
@@ -221,8 +227,6 @@ def stay():
     socketio.emit('render_control', room=room)
     hole_card = GAMES[room].dealer.cards[-1] # hole card is last element of dealer card list
     socketio.emit('flip_hole', hole_card.image_map, room=room)
-
-
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

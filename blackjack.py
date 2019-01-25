@@ -68,11 +68,6 @@ class Hand():
         self.__update_door_value()
         self.__check_bust()
 
-
-
-
-
-
 class Player:
     '''
     Represents a blackjack player
@@ -102,8 +97,17 @@ class Player:
         hand_key = hand_id
         self.hands[hand_key] = Hand(hand_id)
 
-
-
+    def split_cards(self):
+        '''Takes first card from first hand and moves it to the second hand'''
+        hand_one = self.hands[1]
+        first_card = hand_one.cards[0]
+        second_card = hand_one.cards[1]
+        hand_one.total = first_card.value
+        hand_two = self.hands[2]
+        hand_two.cards.append(second_card)
+        hand_two.total = second_card.value
+        hand_two.bet = hand_one.bet
+        hand_one.cards.remove(second_card)
 
 class Dealer(Player):
     '''
@@ -113,7 +117,6 @@ class Dealer(Player):
     def __init__(self):
         super().__init__()
         self.hands = {1 : Hand(1)}
-
 
 class Game():
     '''

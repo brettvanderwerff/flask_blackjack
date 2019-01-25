@@ -80,7 +80,9 @@ socket.on('render_control', function(...args) {
 
     clearDiv('button-container')
 
-    for (i = 0; i < args.length; i++) {
+    var hand_id = args[0]
+
+    for (i = 1; i < args.length; i++) {
 
         if (args[i] == 'dealbutton') {
 
@@ -90,7 +92,7 @@ socket.on('render_control', function(...args) {
 
         if (args[i] == 'hitbutton') {
 
-            hitButton()
+            hitButton(hand_id)
 
         }
 
@@ -241,7 +243,7 @@ socket.on('add_hand', function(target_hand) {
     var target = target_hand_sliced + '-hands'
     var new_hand = addDiv(target)
     new_hand.id = target_hand
-    new_hand.className = "col text-center hand"
+    new_hand.className = "col text-center align-self-center hand"
 
 })
 
@@ -274,6 +276,20 @@ socket.on('add_count_container', function(hand_id) {
     count_label = addSpan(new_count.id)
     count_label.className = 'count-title'
     count_label.innerText = 'Hand Total'
+
+
+})
+
+// transitions one of the players card from one hand to the next upon a split
+socket.on('transition_card', function() {
+
+    var player_hand_1 = document.getElementById('player-hand-1')
+    var last_card = player_hand_1.lastChild
+
+    var player_hand_2 = document.getElementById('player-hand-2')
+    player_hand_2.appendChild(last_card)
+
+
 
 
 })
@@ -423,9 +439,9 @@ function addSpan(parent_div) {
 
 // makes a hit button for the control panel
 
-function hitButton() {
+function hitButton(hand_id) {
 
-    makeButton('Hit', 'hitbutton', function() { socket.emit('hit', 'player-hand') } )
+    makeButton('Hit', 'hitbutton', function() { socket.emit('hit', 'player-hand', hand_id) } )
 
 }
 
@@ -503,6 +519,7 @@ function addElem(parent_id, element) {
     parent.appendChild(child)
     return child
 }
+
 
 
 

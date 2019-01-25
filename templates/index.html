@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid h-100">
+<div class="container h-100">
     <!-- Start of Main Row -->
     <div class="row h-100">
         <!-- Start of Card Column -->
@@ -71,7 +71,6 @@
                             Place Your Bet
                         </div>
                         <div class="card-body">
-
                             <div>
                                 <img src="static/images/chips/one.png" class="rounded" width="75"
                                      height="75" onclick="chipAudio();socket.emit('add_bet', 1, 1)">
