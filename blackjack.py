@@ -24,6 +24,50 @@ class Deck():
         self.ace_cards = [Card(suit, 11, 'ace') for suit in self.suits]
         self.cards = self.face_cards + self.number_cards + self.ace_cards
 
+class Hand():
+    def __init__(self, id):
+        self.cards = []
+        self.id = id
+        self.total = 0
+        self.bust = False
+        self.door_value = None
+        self.bet = 0
+        self.active = False
+
+    def __check_bust(self):
+        '''
+        Updates the bust attribute to True if the total attribute exceeds 21
+        '''
+        if self.total > 21:
+            self.bust = True
+
+    def __update_door_value(self):
+        '''
+        Updates door value for the face value of the the first card in the hand.
+        This is the "door card" for the dealer in the first round
+        '''
+        self.door_value = self.cards[0].value
+
+    def __update_total(self, card):
+        '''
+        Recalculates the total attribute to include a new card. If the card is an ace it counts as 11 or 1 points,
+        whichever does not make the player bust
+        '''
+        if card.face == 'ace':
+
+            if (self.total + card.value) > 21:
+                self.total += 1
+            else:
+                self.total += 11
+        else:
+            self.total += card.value
+
+    def add_card(self, card):
+        '''Adds a card to the hand'''
+        self.cards.append(card)
+        self.__update_total(card)
+        self.__update_door_value()
+        self.__check_bust()
 
 class Player:
     '''
@@ -31,10 +75,9 @@ class Player:
     '''
 
     def __init__(self):
-        self.cards = []
+        self.hands = {}
         self.total = 0
         self.bust = False
-        self.bet = 0
         self.bank = 1000
 
     def can_split(self):
@@ -42,37 +85,30 @@ class Player:
         Determine if the first two cards dealt to the player are the same. If they are the same, the player
         will be given the option to split
         '''
-        return True if len(set([card.value for card in self.cards])) == 1 else False
+        return True if len(set([card.value for card in self.hands[0]])) == 1 else False
 
     def split(self):
         '''
         Splits the players hand
         '''
+        pass
 
+    def add_hand(self, hand_id):
+        '''Adds a hand to the player object'''
+        hand_key = hand_id
+        self.hands[hand_key] = Hand(hand_id)
 
-
-    def update_position(self):
-        '''
-        Updates the players running total of cards. If the player has an ace, the ace has an assumed value of 11 unless
-        the player would bust with that value in which case the ace value is changed to 1. Also updates the bust attribute
-        if the players total cards value exceeds 21.
-        '''
-        if not 'ace' in [card.face for card in self.cards]:
-            self.total = sum([card.value for card in self.cards])
-        else:
-            running_total = sum([card.value for card in self.cards if card.face != 'ace'])
-            for card in self.cards:
-                if card.face == 'ace':
-                    if running_total + card.value <= 21:
-                        running_total += card.value
-                    else:
-                        running_total += 1
-            self.total = running_total
-
-        if self.total > 21:
-            self.bust = True
-
-
+    def split_cards(self):
+        '''Takes first card from first hand and moves it to the second hand'''
+        hand_one = self.hands[1]
+        first_card = hand_one.cards[0]
+        second_card = hand_one.cards[1]
+        hand_one.total = first_card.value
+        hand_two = self.hands[2]
+        hand_two.cards.append(second_card)
+        hand_two.total = second_card.value
+        hand_two.bet = hand_one.bet
+        hand_one.cards.remove(second_card)
 
 class Dealer(Player):
     '''
@@ -81,23 +117,11 @@ class Dealer(Player):
 
     def __init__(self):
         super().__init__()
+        self.hands = {1 : Hand(1)}
 
-
-    def update_position(self):
-        '''
-        Updates the dealers running total of cards. If the dealer only has two cards, only the value of the first card
-         is added to the total (the non-hole card) since that would make it the first round of the game.
-        If the dealer has an ace, the ace has an assumed value of 11 unless
-        the dealer would bust with that value in which case the ace value is changed to 1. Also updates the bust attribute
-        if the dealers total cards value exceeds 21.
-        '''
-        if len(self.cards) == 2:
-            self.total = self.cards[0].value
-
-        else:
-            super().update_position()
-
-
+    def get_hole_card(self):
+        ''' returns the second card dealt to the dealers hand'''
+        return self.hands[1].cards[1]
 
 class Game():
     '''
@@ -109,9 +133,9 @@ class Game():
         self.deck = Deck().cards
         self.player = Player()
         self.dealer = Dealer()
-        self.round = 0
+        self.round = 1
 
-    def draw_card(self, target):
+    def draw_card(self, target, hand_id):
         '''
         Draws a card from the deck and adds it to either the dealer or player (the target)
         '''
@@ -119,20 +143,11 @@ class Game():
         self.deck.remove(card_draw)
 
         if target == 'player':
-            self.player.cards.append(card_draw)
+            self.player.hands[hand_id].add_card(card_draw)
 
         elif target == 'dealer':
-            self.dealer.cards.append(card_draw)
+            self.dealer.hands[hand_id].add_card(card_draw)
 
         return card_draw
-
-    def update_positions(self):
-        '''
-        Updates the position of the dealer and the player simultaneously. Increments the round attribute by one
-        '''
-        self.player.update_position()
-        self.dealer.update_position()
-        self.round += 1
-
 
 

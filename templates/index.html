@@ -1,40 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid h-100">
+<div class="container h-100">
     <!-- Start of Main Row -->
     <div class="row h-100">
         <!-- Start of Card Column -->
         <div class="col-sm-8 h-100" id="hands-container">
-            <div class="row h-25">
-                <div class="col-sm-8 mx-auto align-self-center">
-                    <div class="circle" id="dealer-total">0</div>
-                    <span class="total-title">Dealer Total</span>
+            <div class="row h-10">
+                <div class="col text-center align-self-center">
+                    <div class="count-circle" id="dealer-count-total">0</div>
+                    <span class="count-title">Dealer Total</span>
                 </div>
             </div>
-            <div class="row h-25">
-                <div class="col-sm-8 mx-auto align-self-center hand" id="dealer-hand">
-                </div>
+            <div class="row h-25" id="dealer-hands">
             </div>
-            <div class="row h-25">
-                <div class="col-sm-8 mx-auto align-self-center">
-                    <div class="circle" id="player-total">0</div>
-                    <span class="total-title">Player Total</span>
-                </div>
+            <div class="row" id="player-counts">
+
             </div>
-            <div class="row h-25">
-                <div class="col-sm-8 mx-auto align-self-center hand" id="player-hand">
-                </div>
+            <div class="row h-25" id="player-hands">
+
+            </div>
+            <div class="row" id="player-bets">
+
+            </div>
+            <div class="row mt-2" id="player-controls">
+
             </div>
         </div>
         <!-- End of Card Column -->
         <!-- Start of Dashboard Column -->
         <div class="col-sm-4 h-100" id="dashboard">
-            <div class="row h-25">
+            <div class="row h-50">
                 <!-- Start of Bank Roll Column -->
-                <div class="col-sm-12 text-center">
+                <div class="col text-center">
                     <div class="card text-center">
                         <div class="card-header">
-                            Bank Roll
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <img src="static/images/misc/audio.png" width="25" height="25" id="audio"
+                                         onclick="toggleMusic(song)">
+                                </div>
+                                <div class="col-sm-4 text-center">
+                                    Bank Roll
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
                             <h1 id="bank-roll">$1000</h1>
@@ -43,44 +51,7 @@
                 </div>
                 <!-- End of Bank Roll Column -->
             </div>
-            <div class="row h-25">
-                <!-- Start of Bet Column -->
-                <div class="col-sm-12 text-center">
-                    <div class="card text-center">
-                        <div class="card-header">
-                            Bet
-                        </div>
-                        <div class="card-body">
-                            <h1 id="bet">$0</h1>
-                        </div>
-                    </div>
-                </div>
-                <!-- End of Bet Column -->
-            </div>
-            <div class="row h-25">
-                <!-- Start of Controls Column -->
-                <div class="col-sm-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <img src="static/images/misc/audio.png" width="25" height="25" id="audio"
-                                         onclick="toggleMusic(song)">
-                                </div>
-                                <div class="col-sm-4 text-center">
-                                    Controls
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body text-center">
-                            <div id="button-container">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End of Controls Column -->
-            </div>
-            <div class="row h-25">
+            <div class="row h-50">
                 <!-- Start of Chips Column -->
                 <div class="col-sm-12 text-center">
                     <div id="chips" class="card">
@@ -88,28 +59,27 @@
                             Place Your Bet
                         </div>
                         <div class="card-body">
-
                             <div>
                                 <img src="static/images/chips/one.png" class="rounded" width="75"
-                                     height="75" onclick="chipAudio();socket.emit('add_bet', 1)">
+                                     height="75" onclick="chipAudio();socket.emit('add_bet', 1, 1)">
 
                                 <img src="static/images/chips/five.png" class="rounded" width="75"
-                                     height="75" onclick="chipAudio();socket.emit('add_bet', 5)">
+                                     height="75" onclick="chipAudio();socket.emit('add_bet', 5, 1)">
 
                                 <img src="static/images/chips/ten.png" class="rounded" width="75"
-                                     height="75" onclick="chipAudio();socket.emit('add_bet', 10)">
+                                     height="75" onclick="chipAudio();socket.emit('add_bet', 10, 1)">
 
                             </div>
                             <div>
 
                                 <img src="static/images/chips/twenty.png" class="rounded" width="75"
-                                     height="75" onclick="chipAudio();socket.emit('add_bet', 20)">
+                                     height="75" onclick="chipAudio();socket.emit('add_bet', 20, 1)">
 
                                 <img src="static/images/chips/forty.png" class="rounded" width="75"
-                                     height="75" onclick="chipAudio();socket.emit('add_bet', 40)">
+                                     height="75" onclick="chipAudio();socket.emit('add_bet', 40, 1)">
 
                                 <img src="static/images/chips/eighty.png" class="rounded" width="75"
-                                     height="75" onclick="chipAudio();socket.emit('add_bet', 80)">
+                                     height="75" onclick="chipAudio();socket.emit('add_bet', 80, 1)">
 
                             </div>
 
