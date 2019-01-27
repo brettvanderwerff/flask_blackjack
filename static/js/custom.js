@@ -237,6 +237,22 @@ socket.on('show_notification', function(notification) {
 
 })
 
+// places bust notification in place of a hand of cards
+
+socket.on('bust_notification', function(target_hand, hand_id) {
+
+    var img = document.createElement('img')
+    img.className = "notification-image"
+    img.src = "static/images/notifications/player_busted.png"
+    img.width = 175
+    img.height = 75
+    var complete_hand_id = target_hand + '-hand-' + hand_id
+    var parent = document.getElementById(complete_hand_id)
+    parent.appendChild(img)
+
+})
+
+
 // adds a new hand to the player-hand container
 
 socket.on('add_hand', function(target_hand) {
@@ -303,6 +319,24 @@ socket.on('transition_card', function() {
 
 
 
+
+})
+
+//clears all the buttons under a given hand
+
+socket.on('clear_controls', function(hand_id) {
+
+    var complete_hand_id = 'player-control-' + hand_id
+    clearDiv(complete_hand_id)
+
+})
+
+//clears all cards in a given hand
+
+socket.on('clear_cards', function(target_hand, hand_id) {
+
+    var complete_hand_id = target_hand + '-hand-' + hand_id
+    clearDiv(complete_hand_id)
 
 })
 

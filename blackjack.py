@@ -32,7 +32,7 @@ class Hand():
         self.bust = False
         self.door_value = None
         self.bet = 0
-        self.active = True
+        self.active = False
 
     def __check_bust(self):
         '''
