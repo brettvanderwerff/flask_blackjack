@@ -62,7 +62,6 @@ margin: 3px;
   text-align: center;
   background: #FFFFFF;
   display: inline-block;
-  margin-right: 10px;
   margin-top: 10px;
 }
 
@@ -99,9 +98,10 @@ margin: 3px;
 
 .control-button {
 
-    margin-bottom: 15px;
+    margin-bottom: 5px;
 
 }
+
 
 
 

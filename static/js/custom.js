@@ -62,9 +62,9 @@ socket.on('activate_chips', function() {
 
 socket.on('clear_previous_round', function() {
 
-    clearDiv('button-container')
     clearDiv('dealer-hands')
     clearDiv('player-hands')
+    clearDiv('player-controls')
 
     if (document.getElementById("notification-image") != null) {
 
@@ -76,17 +76,19 @@ socket.on('clear_previous_round', function() {
 
 // renders buttons for control panel, clears button-container of existing buttons first
 
-socket.on('render_control', function(...args) {
-
-    clearDiv('button-container')
+socket.on('render_hand_control', function(...args) {
 
     var hand_id = args[0]
+
+    var complete_hand_id = 'player-control-' + hand_id
+
+    clearDiv(complete_hand_id)
 
     for (i = 1; i < args.length; i++) {
 
         if (args[i] == 'dealbutton') {
 
-            dealButton()
+            dealButton(hand_id)
 
         }
 
@@ -98,25 +100,25 @@ socket.on('render_control', function(...args) {
 
         if (args[i] == 'staybutton') {
 
-            stayButton()
+            stayButton(hand_id)
 
         }
 
         if (args[i] == 'newroundbutton') {
 
-            newRoundButton()
+            newRoundButton(hand_id)
 
         }
 
         if (args[i] == 'doublebutton') {
 
-            doubleButton()
+            doubleButton(hand_id)
 
         }
 
         if (args[i] == 'splitbutton') {
 
-            splitButton()
+            splitButton(hand_id)
 
         }
 
@@ -280,6 +282,16 @@ socket.on('add_count_container', function(hand_id) {
 
 })
 
+// add a new player controls container below a players hand
+
+socket.on('add_controls_container', function(hand_id) {
+
+    var new_controls = addDiv('player-controls')
+    new_controls.id = 'player-control-' + hand_id
+    new_controls.className = "col text-center"
+
+})
+
 // transitions one of the players card from one hand to the next upon a split
 socket.on('transition_card', function() {
 
@@ -390,10 +402,11 @@ function clearImg() {
 
 // makes a button for the button-container of the control panel
 
-function makeButton(label, id, onclick) {
+function makeButton(hand_id, label, id, onclick) {
 
-    var button_container = document.getElementById('button-container')
-    var div = document.createElement('span')
+    var complete_hand_id = 'player-control-' + hand_id
+    var button_container = document.getElementById(complete_hand_id)
+    var div = document.createElement('div')
     div.className = 'control-button'
     var button = document.createElement("button")
     button.innerText = label
@@ -407,9 +420,9 @@ function makeButton(label, id, onclick) {
 
 // makes a deal button for the control panel
 
-function dealButton() {
+function dealButton(hand_id) {
 
-    makeButton('Deal', 'dealbutton', function() { socket.emit('deal_first_round') } )
+    makeButton(hand_id,'Deal', 'dealbutton', function() { socket.emit('deal_first_round') } )
 
 }
 
@@ -441,31 +454,32 @@ function addSpan(parent_div) {
 
 function hitButton(hand_id) {
 
-    makeButton('Hit', 'hitbutton', function() { socket.emit('hit', 'player-hand', hand_id) } )
+    makeButton(hand_id,'Hit', 'hitbutton', function() { socket.emit('hit', 'player-hand', hand_id) } )
 
 }
 
 // makes a new round button for the control panel
 
-function newRoundButton() {
+function newRoundButton(hand_id) {
 
-    makeButton('New Round', 'newroundbutton', function() { socket.emit('new_round') } )
+    makeButton(hand_id,'New Round', 'newroundbutton', function() { socket.emit('new_round') } )
 
 }
 
 // makes a stay button for the control panel
 
-function stayButton() {
+function stayButton(hand_id) {
 
-    makeButton('Stay', 'staybutton', function() { socket.emit('stay') } )
+    makeButton(hand_id, 'Stay', 'staybutton', function() { socket.emit('stay', hand_id) } )
 
 }
 
-// gets the current players bet from the DOM
+// gets a bet for a players hand from the DOM
 
-function getCurrentBet() {
+function getCurrentBet(hand_id) {
 
-    var current_bet = document.getElementById("bet")
+    var complete_hand_id = 'player-bet-' + hand_id + '-total'
+    var current_bet = document.getElementById(complete_hand_id)
     var bet_increment_string = current_bet.innerText.slice(1)
     var bet_increment_int = parseInt(bet_increment_string, 10)
 
@@ -486,17 +500,17 @@ function removeChildFromParent(child_id) {
 makes a double bet button for the control panel, allows the user to double their current bet, then deletes the double
 button and hits the player with another card then player stays
 */
-function doubleButton() {
+function doubleButton(hand_id) {
 
 
-    makeButton('Double Bet', 'doublebutton', function() {
+    makeButton(hand_id,'Double Bet', 'doublebutton', function() {
 
-        bet_increment = getCurrentBet()
-        socket.emit('add_bet', bet_increment)
+        bet_increment = getCurrentBet(hand_id)
+        socket.emit('add_bet', bet_increment, hand_id)
         chipAudio()
         removeChildFromParent('doublebutton')
-        socket.emit('hit', 'player-hand')
-        socket.emit('stay')
+        socket.emit('hit', 'player-hand', hand_id)
+        socket.emit('stay', hand_id)
 
         })
 
@@ -504,9 +518,9 @@ function doubleButton() {
 
 // makes a button giving the player the option to split
 
-function splitButton() {
+function splitButton(hand_id) {
 
-    makeButton('Split', 'splitbutton', function() { socket.emit('split') } )
+    makeButton(hand_id,'Split', 'splitbutton', function() { socket.emit('split') } )
 
 }
 

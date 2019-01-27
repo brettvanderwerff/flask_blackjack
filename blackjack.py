@@ -32,6 +32,7 @@ class Hand():
         self.bust = False
         self.door_value = None
         self.bet = 0
+        self.active = True
 
     def __check_bust(self):
         '''
@@ -118,6 +119,10 @@ class Dealer(Player):
         super().__init__()
         self.hands = {1 : Hand(1)}
 
+    def get_hole_card(self):
+        ''' returns the second card dealt to the dealers hand'''
+        return self.hands[1].cards[1]
+
 class Game():
     '''
     Represents the blackjack game.
@@ -128,7 +133,7 @@ class Game():
         self.deck = Deck().cards
         self.player = Player()
         self.dealer = Dealer()
-        self.round = 0
+        self.round = 1
 
     def draw_card(self, target, hand_id):
         '''

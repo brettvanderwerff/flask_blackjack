@@ -22,6 +22,9 @@
             <div class="row" id="player-bets">
 
             </div>
+            <div class="row mt-2" id="player-controls">
+
+            </div>
         </div>
         <!-- End of Card Column -->
         <!-- Start of Dashboard Column -->
@@ -31,7 +34,15 @@
                 <div class="col text-center">
                     <div class="card text-center">
                         <div class="card-header">
-                            Bank Roll
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <img src="static/images/misc/audio.png" width="25" height="25" id="audio"
+                                         onclick="toggleMusic(song)">
+                                </div>
+                                <div class="col-sm-4 text-center">
+                                    Bank Roll
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
                             <h1 id="bank-roll">$1000</h1>
@@ -39,29 +50,6 @@
                     </div>
                 </div>
                 <!-- End of Bank Roll Column -->
-            </div>
-            <div class="row h-25">
-                <!-- Start of Controls Column -->
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <img src="static/images/misc/audio.png" width="25" height="25" id="audio"
-                                         onclick="toggleMusic(song)">
-                                </div>
-                                <div class="col-sm-4 text-center">
-                                    Controls
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body text-center">
-                            <div id="button-container">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End of Controls Column -->
             </div>
             <div class="row h-25">
                 <!-- Start of Chips Column -->
