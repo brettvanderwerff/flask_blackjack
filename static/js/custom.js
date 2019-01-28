@@ -243,7 +243,7 @@ socket.on('bust_notification', function(target_hand, hand_id) {
 
     var img = document.createElement('img')
     img.className = "notification-image"
-    img.src = "static/images/notifications/player_busted.png"
+    img.src = "static/images/notifications/busted.png"
     img.width = 175
     img.height = 75
     var complete_hand_id = target_hand + '-hand-' + hand_id
@@ -379,6 +379,7 @@ dealCardAudio = function() {
 
     var myAudio = new Audio('/static/audio/deal.wav')
     myAudio.play()
+    console.log('play')
 
 }
 
