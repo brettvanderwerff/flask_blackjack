@@ -33,6 +33,7 @@ class Hand():
         self.door_value = None
         self.bet = 0
         self.active = False
+        self.can_double = True
 
     def __check_bust(self):
         '''

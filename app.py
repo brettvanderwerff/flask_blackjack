@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room
 import blackjack
-import time
 
 app = Flask(__name__)
 
@@ -109,7 +108,6 @@ def render_card(target, card, hand_id):
     '''
     target_hand = target + '-' + str(hand_id)
     room = request.sid
-    time.sleep(.5)
     if card == 'back_of_card':
         socketio.emit('render_card', data=(target_hand, 'back_of_card.svg'), room=room)
 
@@ -127,9 +125,65 @@ def handle_bust(target_hand, hand_id):
     Sends out the appropriate bust message, clears the table, and evaluates the winner of the round.
     '''
     room = request.sid
-    socketio.emit('clear_cards', data=(target_hand, hand_id), room=room)
     socketio.emit('bust_notification', data=(target_hand, hand_id), room=room)
+    if target_hand == 'player':
+        socketio.emit('clear_controls', hand_id, room=room)
+        try:
+            next_hand = hand_id + 1
+            GAMES[room].player.hands[next_hand].active = True
+            render_table()
+        except:
+            dealer_turn()
 
+def player_win():
+    '''Determines the amount of bet each player wins for each hand'''
+    room = request.sid
+    for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
+        if not GAMES[room].player.hands[hand_id].bust:
+            print('player wins')
+
+
+
+
+def render_dealer():
+    '''renders dealer card values, triggers bust notification etc'''
+    room = request.sid
+    if GAMES[room].round == 1:
+        socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].door_value), room=room)
+    else:
+        socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].total), room=room)
+
+    if GAMES[room].dealer.hands[1].bust:
+        handle_bust('dealer', 1)
+        player_win()
+
+def render_player():
+    '''renders dealer card values, triggers bust notification etc'''
+    room = request.sid
+    for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
+        socketio.emit('update_totals', data=('player', hand_id, GAMES[room].player.hands[hand_id].total), room=room)
+        socketio.emit('update_bet', data=(GAMES[room].player.hands[hand_id].bet, hand_id), room=room)
+
+        if GAMES[room].player.hands[hand_id].bust:
+            handle_bust('player', hand_id)
+
+        elif GAMES[room].player.hands[hand_id].active:
+
+            if GAMES[room].round == 1:
+                socketio.emit('render_hand_control',
+                              data=(hand_id, 'hitbutton', 'splitbutton', 'staybutton', 'doublebutton'),
+                              room=room)
+
+            elif GAMES[room].player.hands[hand_id].can_double:
+                print(GAMES[room].player.hands[hand_id].can_double)
+                socketio.emit('render_hand_control',
+                              data=(hand_id, 'hitbutton', 'staybutton', 'doublebutton'),
+                              room=room)
+
+            else:
+                socketio.emit('render_hand_control',
+                              data=(hand_id, 'hitbutton', 'staybutton'),
+                              room=room)
 
 def render_table():
     '''
@@ -138,16 +192,16 @@ def render_table():
     accordingly
     '''
     room = request.sid
-    socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].door_value), room=room)
+    render_dealer()
+    render_player()
+    GAMES[room].round += 1
 
-    for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
-        if GAMES[room].player.hands[hand_id].bust:
-            handle_bust('player', hand_id)
-        socketio.emit('update_totals', data=('player', hand_id, GAMES[room].player.hands[hand_id].total), room=room)
-        socketio.emit('update_bet', data=(GAMES[room].player.hands[hand_id].bet, hand_id), room=room)
-        if GAMES[room].player.hands[hand_id].active:
-            socketio.emit('render_hand_control', data=(hand_id, 'hitbutton', 'splitbutton', 'staybutton', 'doublebutton'),
-                      room=room)
+@socketio.on('deactivate_double')
+def deactivate_double(hand_id):
+    '''inactivate the player's option to double their bet (happens after they hit a hand)'''
+    room = request.sid
+    GAMES[room].player.hands[hand_id].can_double = False
+    print( print(GAMES[room].player.hands[hand_id].can_double))
 
 def add_hand_to_dom(target, hand_id):
     '''
@@ -217,7 +271,6 @@ def hit(target_hand, hand_id):
         render_card('player-hand', player_card, hand_id)
 
     else:
-
         dealer_card = GAMES[room].draw_card('dealer', 1)
         render_card('dealer-hand', dealer_card, 1)
     render_table()
@@ -229,6 +282,9 @@ def dealer_turn():
     room = request.sid
     hole_card = GAMES[room].dealer.get_hole_card()
     socketio.emit('flip_hole', hole_card.image_map, room=room)
+    while GAMES[room].dealer.hands[1].total < 17:
+        hit('dealer', 1)
+
 
 @socketio.on('stay')
 def stay(hand_id):
@@ -237,7 +293,7 @@ def stay(hand_id):
     '''
     room = request.sid
     GAMES[room].player.hands[hand_id].active = False
-    socketio.emit('clear_controls', hand_id)
+    socketio.emit('clear_controls', hand_id, room=room)
     try:
         next_hand = hand_id + 1
         GAMES[room].player.hands[next_hand].active = True

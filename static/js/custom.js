@@ -488,7 +488,13 @@ function addSpan(parent_div) {
 
 function hitButton(hand_id) {
 
-    makeButton(hand_id,'Hit', 'hitbutton', function() { socket.emit('hit', 'player-hand', hand_id) } )
+    makeButton(hand_id,'Hit', 'hitbutton', function() {
+
+        socket.emit('deactivate_double', hand_id)
+        socket.emit('hit', 'player-hand', hand_id)
+
+
+    })
 
 }
 
@@ -545,16 +551,22 @@ function doubleButton(hand_id) {
         removeChildFromParent('doublebutton')
         socket.emit('hit', 'player-hand', hand_id)
         socket.emit('stay', hand_id)
+        socket.emit('deactivate_double', hand_id)
 
         })
 
 }
 
-// makes a button giving the player the option to split
+// makes a button giving the player the option to split. Removes the split button upon clicking
 
 function splitButton(hand_id) {
 
-    makeButton(hand_id,'Split', 'splitbutton', function() { socket.emit('split') } )
+    makeButton(hand_id,'Split', 'splitbutton', function() {
+
+        socket.emit('split')
+        removeChildFromParent('splitbutton')
+
+    })
 
 }
 
