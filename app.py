@@ -127,22 +127,6 @@ def end_round():
     pass
 
 
-def handle_bust(target_hand, hand_id):
-    '''
-    Sends out the appropriate bust message, clears the table, and evaluates the winner of the round.
-    '''
-    room = request.sid
-    socketio.emit('bust_notification', data=(target_hand, hand_id), room=room)
-    if target_hand == 'player':
-        socketio.emit('clear_controls', hand_id, room=room)
-        try:
-            next_hand = hand_id + 1
-            GAMES[room].player.hands[next_hand].active = True
-            render_table()
-        except:
-            dealer_turn()
-
-
 def player_win():
     '''Determines the amount of bet each player wins for each hand'''
     room = request.sid
@@ -150,6 +134,11 @@ def player_win():
         if not GAMES[room].player.hands[hand_id].bust:
             GAMES[room].player.bank += GAMES[room].player.hands[hand_id].bet
 
+def evaluate_dealer():
+    '''Determines play flow based on the dealer's position'''
+    room = request.sid
+    if GAMES[room].dealer.hands[1].bust:
+        player_win()
 
 def render_dealer():
     '''renders dealer card values, triggers bust notification etc'''
@@ -158,11 +147,20 @@ def render_dealer():
         socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].door_value), room=room)
     else:
         socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].total), room=room)
-
     if GAMES[room].dealer.hands[1].bust:
-        handle_bust('dealer', 1)
-        player_win()
+        socketio.emit('bust_notification', data=('dealer', 1), room=room)
 
+def evaluate_player():
+    '''Determines play flow based on the players position'''
+    room = request.sid
+    for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
+        if GAMES[room].player.hands[hand_id].bust:
+            try:
+                next_hand = hand_id + 1
+                GAMES[room].player.hands[next_hand].active = True
+                render_table()
+            except:
+                dealer_turn()
 
 def render_player():
     '''renders dealer card values, triggers bust notification etc'''
@@ -172,7 +170,8 @@ def render_player():
         socketio.emit('update_bet', data=(GAMES[room].player.hands[hand_id].bet, hand_id), room=room)
 
         if GAMES[room].player.hands[hand_id].bust:
-            handle_bust('player', hand_id)
+            socketio.emit('bust_notification', data=('player', hand_id), room=room)
+            socketio.emit('clear_controls', hand_id, room=room)
 
         elif GAMES[room].player.hands[hand_id].active:
 
@@ -261,13 +260,6 @@ def deal_first_round():
 
         socketio.emit('deactivate_chips', room=room)
         render_table()
-
-
-def deal_second_round():
-    '''Deals the second round, the value of the door card of the dealer is visible, the value of both player cards are
-    visible and the player is given the option to hit/stay/split/double'''
-    room = request.sid
-    socketio.emit('render_hand_control', data=(1, 'hitbutton', 'splitbutton', 'doublebutton'), room=room)
 
 
 @socketio.on('hit')
