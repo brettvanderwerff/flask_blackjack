@@ -133,6 +133,7 @@ def player_win():
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if not GAMES[room].player.hands[hand_id].bust:
             GAMES[room].player.bank += GAMES[room].player.hands[hand_id].bet
+            print('player')
 
 def evaluate_dealer():
     '''Determines play flow based on the dealer's position'''
@@ -255,9 +256,7 @@ def deal_first_round():
 
     else:
         player_first_round()
-
         dealer_first_round()
-
         socketio.emit('deactivate_chips', room=room)
         render_table()
 
@@ -271,10 +270,12 @@ def hit(target_hand, hand_id):
     if target_hand == 'player-hand':
         player_card = GAMES[room].draw_card('player', hand_id)
         render_card('player-hand', player_card, hand_id)
+        evaluate_player()
 
     else:
         dealer_card = GAMES[room].draw_card('dealer', 1)
         render_card('dealer-hand', dealer_card, 1)
+        evaluate_dealer()
     render_table()
 
 
@@ -288,11 +289,15 @@ def dealer_turn():
     if sum([hand.bust for hand in GAMES[room].player.hands.values()]) != 0:
         render_table()
     else:
-        while GAMES[room].dealer.hands[1].total < 17: # change to hit on soft 17
-            hit('dealer', 1)
-        if not GAMES[room].dealer.hands[1].bust:
-            render_table()
+        if 'ace' in [card.face for card in GAMES[room].dealer.hands[1].cards]:
+            while GAMES[room].dealer.hands[1].total <= 17:
+                hit('dealer', 1)
 
+        else:
+            while GAMES[room].dealer.hands[1].total < 17:
+                hit('dealer', 1)
+        render_table()
+        evaluate_dealer()
 
 @socketio.on('stay')
 def stay(hand_id):
@@ -307,7 +312,6 @@ def stay(hand_id):
         GAMES[room].player.hands[next_hand].active = True
     except:
         dealer_turn()
-
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

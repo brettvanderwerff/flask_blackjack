@@ -54,7 +54,7 @@ class Hand():
         Recalculates the total attribute to include a new card. If the card is an ace it counts as 11 or 1 points,
         whichever does not make the player bust
         '''
-        if card.face == 'ace':
+        if card.face == 'ace': #ToDo this needs to consider all cards because if an ace is the first card dealt it does not work
 
             if (self.total + card.value) > 21:
                 self.total += 1
