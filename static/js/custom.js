@@ -379,7 +379,6 @@ dealCardAudio = function() {
 
     var myAudio = new Audio('/static/audio/deal.wav')
     myAudio.play()
-    console.log('play')
 
 }
 

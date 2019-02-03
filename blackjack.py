@@ -49,24 +49,33 @@ class Hand():
         '''
         self.door_value = self.cards[0].value
 
-    def __update_total(self, card):
+    def __update_total(self):
         '''
         Recalculates the total attribute to include a new card. If the card is an ace it counts as 11 or 1 points,
         whichever does not make the player bust
         '''
-        if card.face == 'ace':
 
-            if (self.total + card.value) > 21:
-                self.total += 1
-            else:
-                self.total += 11
+        if 'ace' in [card.face for card in self.cards]:
+            non_ace_total = sum([card.value for card in self.cards if card.face != 'ace'])
+            running_total = non_ace_total
+
+            for card in self.cards:
+                if card.face == 'ace':
+
+                    if (running_total + card.value) > 21:
+                        running_total += 1
+                    else:
+                        running_total += 11
+
+            self.total = running_total
+
         else:
-            self.total += card.value
+            self.total = sum([card.value for card in self.cards])
 
     def add_card(self, card):
         '''Adds a card to the hand'''
         self.cards.append(card)
-        self.__update_total(card)
+        self.__update_total()
         self.__update_door_value()
         self.__check_bust()
 
