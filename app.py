@@ -133,13 +133,41 @@ def player_win():
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if not GAMES[room].player.hands[hand_id].bust:
             GAMES[room].player.bank += GAMES[room].player.hands[hand_id].bet
-            print('player')
+    print('player win')
 
-def evaluate_dealer():
-    '''Determines play flow based on the dealer's position'''
+
+def dealer_win():
+    '''
+    Handles the dealer winning
+    '''
+    room = request.sid
+    for hand_id in GAMES[room].player.hands:
+        GAMES[room].player.bank -= GAMES[room].player.hands[hand_id].bet
+
+    print('dealer win')
+
+def push():
+    '''
+    Handle the event where the dealer and the player tie
+    '''
+    print('push')
+
+
+def determine_win():
+    '''
+    Determines if the player or the dealer wins the games
+    '''
     room = request.sid
     if GAMES[room].dealer.hands[1].bust:
         player_win()
+    else:
+        for hand_id in GAMES[room].player.hands:
+            if GAMES[room].player.hands[hand_id].total > GAMES[room].dealer.hands[1].total:
+                player_win()
+                return
+
+
+
 
 def render_dealer():
     '''renders dealer card values, triggers bust notification etc'''
@@ -275,7 +303,6 @@ def hit(target_hand, hand_id):
     else:
         dealer_card = GAMES[room].draw_card('dealer', 1)
         render_card('dealer-hand', dealer_card, 1)
-        evaluate_dealer()
     render_table()
 
 
@@ -286,8 +313,9 @@ def dealer_turn():
     room = request.sid
     hole_card = GAMES[room].dealer.get_hole_card()
     socketio.emit('flip_hole', hole_card.image_map, room=room)
-    if sum([hand.bust for hand in GAMES[room].player.hands.values()]) != 0:
+    if sum([hand.bust for hand in GAMES[room].player.hands.values()]) == len(GAMES[room].player.hands):
         render_table()
+        dealer_win()
     else:
         if 'ace' in [card.face for card in GAMES[room].dealer.hands[1].cards]:
             while GAMES[room].dealer.hands[1].total <= 17:
@@ -297,7 +325,7 @@ def dealer_turn():
             while GAMES[room].dealer.hands[1].total < 17:
                 hit('dealer', 1)
         render_table()
-        evaluate_dealer()
+        determine_win()
 
 @socketio.on('stay')
 def stay(hand_id):
