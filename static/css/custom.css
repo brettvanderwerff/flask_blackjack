@@ -88,10 +88,11 @@ margin: auto !important;
 
 }
 
+
 /* creates overlap for dealt card images */
 
 .hand img {
-    margin-left: -15%;
+    margin-left: -10%;
 }
 
 .hand img:first-child {

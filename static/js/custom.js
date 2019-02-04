@@ -231,9 +231,10 @@ socket.on('show_notification', function(notification) {
 
     var img = document.createElement('img')
     img.id = "notification-image"
+    img.width = 175
+    img.height = 175
     img.src = "static/images/notifications/" + notification + ".png"
-    document.getElementsByTagName('body')[0].appendChild(img)
-
+    document.getElementById('notification-container').appendChild(img)
 
 })
 

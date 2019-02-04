@@ -133,7 +133,7 @@ def player_win():
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if not GAMES[room].player.hands[hand_id].bust:
             GAMES[room].player.bank += GAMES[room].player.hands[hand_id].bet
-    print('player win')
+    socketio.emit('show_notification', 'player_wins')
 
 
 def dealer_win():
@@ -144,13 +144,13 @@ def dealer_win():
     for hand_id in GAMES[room].player.hands:
         GAMES[room].player.bank -= GAMES[room].player.hands[hand_id].bet
 
-    print('dealer win')
+    socketio.emit('show_notification', 'dealer_wins')
 
 def push():
     '''
     Handle the event where the dealer and the player tie
     '''
-    print('push')
+    socketio.emit('show_notification', 'push')
 
 
 def determine_win():
@@ -165,6 +165,13 @@ def determine_win():
             if GAMES[room].player.hands[hand_id].total > GAMES[room].dealer.hands[1].total:
                 player_win()
                 return
+
+        player_hand_totals = [hand.total for hand in GAMES[room].player.hands.values()]
+
+        if all(GAMES[room].dealer.hands[1].total > total for total in player_hand_totals):
+            dealer_win()
+
+
 
 
 
@@ -338,6 +345,7 @@ def stay(hand_id):
     try:
         next_hand = hand_id + 1
         GAMES[room].player.hands[next_hand].active = True
+        render_table()
     except:
         dealer_turn()
 
