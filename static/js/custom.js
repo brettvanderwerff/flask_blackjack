@@ -65,14 +65,14 @@ socket.on('clear_previous_round', function() {
     clearDiv('dealer-hands')
     clearDiv('player-hands')
     clearDiv('player-controls')
-
-    if (document.getElementById("notification-image") != null) {
-
-        clearImg()
-
-    }
+    clearDiv('player-bets')
+    clearDiv('player-counts')
+    clearDiv('dealer-counts')
+    clearDiv('notification-container')
 
 })
+
+// refresh dealer bet toal
 
 // renders buttons for control panel, clears button-container of existing buttons first
 
@@ -134,7 +134,7 @@ socket.on('update_totals', function(target, hand_id, total) {
 
     if (target == 'dealer') {
 
-        var dealer_total_elem = document.getElementById('dealer-count-total')
+        var dealer_total_elem = document.getElementById('dealer-count-1-total')
         dealer_total_elem.innerText = total
 
     }
@@ -147,6 +147,20 @@ socket.on('update_totals', function(target, hand_id, total) {
 
     }
 
+
+})
+
+socket.on('play_again', function() {
+
+    var parent = document.getElementById('notification-container')
+    var button_container = addDiv('notification-container')
+    var button = document.createElement("button")
+    button.onclick = function() { socket.emit('new_round')}
+    button.className = "btn btn-primary control-button"
+    button.innerText = 'Play Again'
+    button.style = "margin-top: 10px;"
+    button_container.appendChild(button)
+    document.getElementById('notification-container').appendChild(button_container)
 
 })
 
@@ -230,11 +244,13 @@ socket.on('render_card', function(target_hand, image_map) {
 socket.on('show_notification', function(notification) {
 
     var img = document.createElement('img')
+    var parent = addDiv('notification-container')
     img.id = "notification-image"
     img.width = 175
     img.height = 175
     img.src = "static/images/notifications/" + notification + ".png"
-    document.getElementById('notification-container').appendChild(img)
+    parent.appendChild(img)
+    document.getElementById('notification-container').appendChild(parent)
 
 })
 
@@ -281,20 +297,29 @@ socket.on('add_bet_container', function(hand_id) {
 
 })
 
-// adds a new player count container above a player's hand also adds a label for the count container
+// adds a new player or dealer  count container above a player's hand also adds a label for the count container
 
-socket.on('add_count_container', function(hand_id) {
+socket.on('add_count_container', function(hand_id, target) {
 
-    var new_count = addDiv('player-counts')
-    new_count.id = 'player-count-' + hand_id
+    var new_count = addDiv(target + '-counts')
+    new_count.id = target + '-count-' + hand_id
     new_count.className = "col text-center"
     var count_total = addDiv(new_count.id)
     count_total.className = 'count-circle'
-    count_total.id = 'player-count-' +  hand_id + '-total'
+    count_total.id = target + '-count-' +  hand_id + '-total'
     count_total.innerText = "0"
     count_label = addSpan(new_count.id)
     count_label.className = 'count-title'
-    count_label.innerText = 'Hand Total'
+    if (target == 'player') {
+
+        count_label.innerText = 'Hand Total'
+
+    } else {
+
+        count_label.innerText = 'Dealer Total'
+
+    }
+
 
 
 })
@@ -580,6 +605,7 @@ function addElem(parent_id, element) {
     parent.appendChild(child)
     return child
 }
+
 
 
 

@@ -35,7 +35,8 @@ def new_round():
     clear_previous_round()
     socketio.emit('activate_chips', room=room)
     socketio.emit('add_bet_container', 1, room=room)
-    socketio.emit('add_count_container', 1, room=room)
+    socketio.emit('add_count_container', data=(1,'player'), room=room)
+    socketio.emit('add_count_container', data=(1, 'dealer'), room=room)
     socketio.emit('add_controls_container', 1, room=room)
     add_hand_to_dom('player', 1)
     GAMES[room].player.hands[1].active = True
@@ -98,7 +99,7 @@ def split():
     '''
     room = request.sid
     socketio.emit('add_bet_container', 2, room=room)
-    socketio.emit('add_count_container', 2, room=room)
+    socketio.emit('add_count_container', data=(2,'player'), room=room)
     socketio.emit('add_controls_container', 2, room=room)
     add_hand_to_dom('player', 2)
     GAMES[room].player.split_cards()
@@ -133,7 +134,11 @@ def player_win():
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if not GAMES[room].player.hands[hand_id].bust:
             GAMES[room].player.bank += GAMES[room].player.hands[hand_id].bet
-    socketio.emit('show_notification', 'player_wins')
+    socketio.emit('show_notification', 'player_wins', room=room)
+    if GAMES[room].player.bank > 0:
+        socketio.emit('play_again')
+    else:
+        print('game over')
 
 
 def dealer_win():
@@ -144,7 +149,11 @@ def dealer_win():
     for hand_id in GAMES[room].player.hands:
         GAMES[room].player.bank -= GAMES[room].player.hands[hand_id].bet
 
-    socketio.emit('show_notification', 'dealer_wins')
+    socketio.emit('show_notification', 'dealer_wins', room=room)
+    if GAMES[room].player.bank > 0:
+        socketio.emit('play_again')
+    else:
+        print('game over')
 
 def push():
     '''
@@ -170,10 +179,6 @@ def determine_win():
 
         if all(GAMES[room].dealer.hands[1].total > total for total in player_hand_totals):
             dealer_win()
-
-
-
-
 
 
 def render_dealer():
