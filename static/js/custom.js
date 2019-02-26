@@ -576,8 +576,7 @@ function doubleButton(hand_id) {
         socket.emit('add_bet', bet_increment, hand_id)
         chipAudio()
         removeChildFromParent('doublebutton')
-        socket.emit('hit', 'player-hand', hand_id)
-        socket.emit('stay', hand_id)
+        socket.emit('double', hand_id)
         socket.emit('deactivate_double', hand_id)
 
         })

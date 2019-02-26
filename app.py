@@ -352,5 +352,13 @@ def stay(hand_id):
     except:
         dealer_turn()
 
+@socketio.on('double')
+def double(hand_id):
+    '''
+    Handles the doubling of a players hand
+    '''
+    hit('player-hand', hand_id) #if player busts both hit and stay call evaluate_win must fix
+    stay(hand_id)
+
 if __name__ == '__main__':
     socketio.run(app, debug=True)
