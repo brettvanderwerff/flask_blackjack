@@ -68,7 +68,8 @@ socket.on('clear_previous_round', function() {
     clearDiv('player-bets')
     clearDiv('player-counts')
     clearDiv('dealer-counts')
-    clearDiv('notification-container')
+    clearDiv('win-notification-container')
+    clearDiv('play-again-container')
 
 })
 
@@ -152,15 +153,15 @@ socket.on('update_totals', function(target, hand_id, total) {
 
 socket.on('play_again', function() {
 
-    var parent = document.getElementById('notification-container')
-    var button_container = addDiv('notification-container')
+    var parent = document.getElementById('play-again-container')
+    var button_container = addDiv('play-again-container')
     var button = document.createElement("button")
     button.onclick = function() { socket.emit('new_round')}
     button.className = "btn btn-primary control-button"
     button.innerText = 'Play Again'
     button.style = "margin-top: 10px;"
     button_container.appendChild(button)
-    document.getElementById('notification-container').appendChild(button_container)
+    document.getElementById('play-again-container').appendChild(button_container)
 
 })
 
@@ -244,13 +245,13 @@ socket.on('render_card', function(target_hand, image_map) {
 socket.on('show_notification', function(notification) {
 
     var img = document.createElement('img')
-    var parent = addDiv('notification-container')
+    var parent = addDiv('win-notification-container')
     img.id = "notification-image"
-    img.width = 175
-    img.height = 175
+    img.width = 125
+    img.height = 125
     img.src = "static/images/notifications/" + notification + ".png"
     parent.appendChild(img)
-    document.getElementById('notification-container').appendChild(parent)
+    document.getElementById('win-notification-container').appendChild(parent)
 
 })
 

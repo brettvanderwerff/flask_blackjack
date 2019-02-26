@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room
 import blackjack
-import time
 
 app = Flask(__name__)
 
@@ -133,8 +132,9 @@ def player_win():
     room = request.sid
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if not GAMES[room].player.hands[hand_id].bust:
-            GAMES[room].player.bank += GAMES[room].player.hands[hand_id].bet
+            GAMES[room].player.bank += 2*GAMES[room].player.hands[hand_id].bet
     socketio.emit('show_notification', 'player_wins', room=room)
+    update_bank(0)
     if GAMES[room].player.bank > 0:
         socketio.emit('play_again')
     else:
@@ -146,8 +146,6 @@ def dealer_win():
     Handles the dealer winning
     '''
     room = request.sid
-    for hand_id in GAMES[room].player.hands:
-        GAMES[room].player.bank -= GAMES[room].player.hands[hand_id].bet
 
     socketio.emit('show_notification', 'dealer_wins', room=room)
     if GAMES[room].player.bank > 0:
