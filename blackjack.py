@@ -88,7 +88,7 @@ class Player:
         self.hands = {}
         self.total = 0
         self.bust = False
-        self.bank = 1000
+        self.bank = 100
 
     def can_split(self):
         '''
@@ -104,12 +104,16 @@ class Player:
         pass
 
     def add_hand(self, hand_id):
-        '''Adds a hand to the player object'''
+        '''
+        Adds a hand to the player object
+        '''
         hand_key = hand_id
         self.hands[hand_key] = Hand(hand_id)
 
     def split_cards(self):
-        '''Takes first card from first hand and moves it to the second hand'''
+        '''
+        Takes first card from first hand and moves it to the second hand
+        '''
         hand_one = self.hands[1]
         first_card = hand_one.cards[0]
         second_card = hand_one.cards[1]
@@ -130,7 +134,9 @@ class Dealer(Player):
         self.hands = {1 : Hand(1)}
 
     def get_hole_card(self):
-        ''' returns the second card dealt to the dealers hand'''
+        '''
+        Returns the second card dealt to the dealers hand
+        '''
         return self.hands[1].cards[1]
 
 class Game():
@@ -159,5 +165,11 @@ class Game():
             self.dealer.hands[hand_id].add_card(card_draw)
 
         return card_draw
+
+    def new_deck(self):
+        '''
+        Adds a fresh deck to the game
+        '''
+        self.deck = Deck().cards
 
 

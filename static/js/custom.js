@@ -69,11 +69,27 @@ socket.on('clear_previous_round', function() {
     clearDiv('player-counts')
     clearDiv('dealer-counts')
     clearDiv('win-notification-container')
-    clearDiv('play-again-container')
+    clearDiv('game-button-container')
 
 })
 
-// refresh dealer bet toal
+// makes a button for starting a new game
+
+socket.on('start_game', function() {
+
+    var parent = document.getElementById('game-button-container')
+    var button_container = addDiv('game-button-container')
+    var button = document.createElement("button")
+    button.onclick = function() { socket.emit('start_game')}
+    button.className = "btn btn-primary control-button"
+    button.innerText = 'New Game'
+    button.style = "margin-top: 10px;"
+    button_container.appendChild(button)
+    document.getElementById('game-button-container').appendChild(button_container)
+
+})
+
+
 
 // renders buttons for control panel, clears button-container of existing buttons first
 
@@ -151,17 +167,19 @@ socket.on('update_totals', function(target, hand_id, total) {
 
 })
 
+// button that allows the player to play another round when pressed
+
 socket.on('play_again', function() {
 
-    var parent = document.getElementById('play-again-container')
-    var button_container = addDiv('play-again-container')
+    var parent = document.getElementById('game-button-container')
+    var button_container = addDiv('game-button-container')
     var button = document.createElement("button")
     button.onclick = function() { socket.emit('new_round')}
     button.className = "btn btn-primary control-button"
     button.innerText = 'Play Again'
     button.style = "margin-top: 10px;"
     button_container.appendChild(button)
-    document.getElementById('play-again-container').appendChild(button_container)
+    document.getElementById('game-button-container').appendChild(button_container)
 
 })
 

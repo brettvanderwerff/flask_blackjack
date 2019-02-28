@@ -32,6 +32,7 @@ def new_round():
     '''
     room = request.sid
     clear_previous_round()
+    GAMES[room].new_deck()
     socketio.emit('activate_chips', room=room)
     socketio.emit('add_bet_container', 1, room=room)
     socketio.emit('add_count_container', data=(1,'player'), room=room)
@@ -102,7 +103,7 @@ def split():
     socketio.emit('add_controls_container', 2, room=room)
     add_hand_to_dom('player', 2)
     GAMES[room].player.split_cards()
-    socketio.emit('transition_card')
+    socketio.emit('transition_card', room=room)
     hit('player-hand', 1)
     hit('player-hand', 2)
 
@@ -133,12 +134,13 @@ def player_win():
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if not GAMES[room].player.hands[hand_id].bust:
             GAMES[room].player.bank += 2*GAMES[room].player.hands[hand_id].bet
-    socketio.emit('show_notification', 'player_wins', room=room)
     update_bank(0)
     if GAMES[room].player.bank > 0:
-        socketio.emit('play_again')
+        socketio.emit('show_notification', 'player_wins', room=room)
+        socketio.emit('play_again', room=room)
     else:
-        print('game over')
+        socketio.emit('show_notification', 'game_over', room=room)
+        socketio.emit('start_game', room=room)
 
 
 def dealer_win():
@@ -147,17 +149,20 @@ def dealer_win():
     '''
     room = request.sid
 
-    socketio.emit('show_notification', 'dealer_wins', room=room)
     if GAMES[room].player.bank > 0:
-        socketio.emit('play_again')
+        socketio.emit('show_notification', 'dealer_wins', room=room)
+        socketio.emit('play_again', room=room)
     else:
-        print('game over')
+        socketio.emit('show_notification', 'game_over', room=room)
+        socketio.emit('start_game', room=room)
 
 def push():
     '''
     Handle the event where the dealer and the player tie
     '''
-    socketio.emit('show_notification', 'push')
+    room = request.sid
+    socketio.emit('show_notification', 'push', room=room)
+    socketio.emit('play_again', room=room)
 
 
 def determine_win():
@@ -215,9 +220,15 @@ def render_player():
         elif GAMES[room].player.hands[hand_id].active:
 
             if GAMES[room].round == 1:
-                socketio.emit('render_hand_control',
+                if len(set([card.face for card in GAMES[room].player.hands[1].cards])) == 1:
+
+                    socketio.emit('render_hand_control',
                               data=(hand_id, 'hitbutton', 'splitbutton', 'staybutton', 'doublebutton'),
                               room=room)
+                else:
+                    socketio.emit('render_hand_control',
+                                  data=(hand_id, 'hitbutton', 'staybutton', 'doublebutton'),
+                                  room=room)
 
             elif GAMES[room].player.hands[hand_id].can_double:
                 socketio.emit('render_hand_control',
@@ -357,8 +368,10 @@ def double(hand_id):
     '''
     Handles the doubling of a players hand
     '''
-    hit('player-hand', hand_id) #if player busts both hit and stay call evaluate_win must fix
-    stay(hand_id)
+    room = request.sid
+    hit('player-hand', hand_id)
+    if not GAMES[room].player.hands[hand_id].bust:
+        stay(hand_id)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
