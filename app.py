@@ -35,7 +35,7 @@ def new_round():
     GAMES[room].new_deck()
     socketio.emit('activate_chips', room=room)
     socketio.emit('add_bet_container', 1, room=room)
-    socketio.emit('add_count_container', data=(1,'player'), room=room)
+    socketio.emit('add_count_container', data=(1, 'player'), room=room)
     socketio.emit('add_count_container', data=(1, 'dealer'), room=room)
     socketio.emit('add_controls_container', 1, room=room)
     add_hand_to_dom('player', 1)
@@ -99,7 +99,7 @@ def split():
     '''
     room = request.sid
     socketio.emit('add_bet_container', 2, room=room)
-    socketio.emit('add_count_container', data=(2,'player'), room=room)
+    socketio.emit('add_count_container', data=(2, 'player'), room=room)
     socketio.emit('add_controls_container', 2, room=room)
     add_hand_to_dom('player', 2)
     GAMES[room].player.split_cards()
@@ -122,18 +122,22 @@ def render_card(target, card, hand_id):
 
 
 def end_round():
-    '''Determines who wins the round, exchanges bet money accordingly.'''
+    '''
+    Determines who wins the round, exchanges bet money accordingly.
+    '''
     room = request.sid
     socketio.emit('render_hand_control', data=('newroundbutton',), room=room)
     pass
 
 
 def player_win():
-    '''Determines the amount of bet each player wins for each hand'''
+    '''
+    Determines the amount of bet each player wins for each hand
+    '''
     room = request.sid
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if not GAMES[room].player.hands[hand_id].bust:
-            GAMES[room].player.bank += 2*GAMES[room].player.hands[hand_id].bet
+            GAMES[room].player.bank += 2 * GAMES[room].player.hands[hand_id].bet
     update_bank(0)
     if GAMES[room].player.bank > 0:
         socketio.emit('show_notification', 'player_wins', room=room)
@@ -155,6 +159,7 @@ def dealer_win():
     else:
         socketio.emit('show_notification', 'game_over', room=room)
         socketio.emit('start_game', room=room)
+
 
 def push():
     '''
@@ -185,7 +190,9 @@ def determine_win():
 
 
 def render_dealer():
-    '''renders dealer card values, triggers bust notification etc'''
+    '''
+    Renders dealer card values, triggers bust notification etc
+    '''
     room = request.sid
     if GAMES[room].round == 1:
         socketio.emit('update_totals', data=('dealer', 1, GAMES[room].dealer.hands[1].door_value), room=room)
@@ -194,8 +201,11 @@ def render_dealer():
     if GAMES[room].dealer.hands[1].bust:
         socketio.emit('bust_notification', data=('dealer', 1), room=room)
 
+
 def evaluate_player():
-    '''Determines play flow based on the players position'''
+    '''
+    Determines play flow based on the players position
+    '''
     room = request.sid
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         if GAMES[room].player.hands[hand_id].bust:
@@ -206,8 +216,11 @@ def evaluate_player():
             except:
                 dealer_turn()
 
+
 def render_player():
-    '''renders dealer card values, triggers bust notification etc'''
+    '''
+    Renders dealer card values, triggers bust notification etc
+    '''
     room = request.sid
     for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
         socketio.emit('update_totals', data=('player', hand_id, GAMES[room].player.hands[hand_id].total), room=room)
@@ -223,8 +236,8 @@ def render_player():
                 if len(set([card.face for card in GAMES[room].player.hands[1].cards])) == 1:
 
                     socketio.emit('render_hand_control',
-                              data=(hand_id, 'hitbutton', 'splitbutton', 'staybutton', 'doublebutton'),
-                              room=room)
+                                  data=(hand_id, 'hitbutton', 'splitbutton', 'staybutton', 'doublebutton'),
+                                  room=room)
                 else:
                     socketio.emit('render_hand_control',
                                   data=(hand_id, 'hitbutton', 'staybutton', 'doublebutton'),
@@ -255,14 +268,16 @@ def render_table():
 
 @socketio.on('deactivate_double')
 def deactivate_double(hand_id):
-    '''inactivate the player's option to double their bet (happens after they hit a hand)'''
+    '''
+    Inactivate the player's option to double their bet (happens after they hit a hand)
+    '''
     room = request.sid
     GAMES[room].player.hands[hand_id].can_double = False
 
 
 def add_hand_to_dom(target, hand_id):
     '''
-    manipulates DOM to add a new player hand, also updates game object to reflect the new hand
+    Manipulates DOM to add a new player hand, also updates game object to reflect the new hand
     '''
     target_hand = target + '-hand-' + str(hand_id)
     room = request.sid
@@ -348,6 +363,7 @@ def dealer_turn():
         render_table()
         determine_win()
 
+
 @socketio.on('stay')
 def stay(hand_id):
     '''
@@ -363,6 +379,7 @@ def stay(hand_id):
     except:
         dealer_turn()
 
+
 @socketio.on('double')
 def double(hand_id):
     '''
@@ -372,6 +389,7 @@ def double(hand_id):
     hit('player-hand', hand_id)
     if not GAMES[room].player.hands[hand_id].bust:
         stay(hand_id)
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

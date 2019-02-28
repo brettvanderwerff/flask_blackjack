@@ -1,4 +1,4 @@
-// Starts playing backgound music when the player loads the page
+// Starts playing background music when the player loads the page
 
 /*
 window.onload = function() {

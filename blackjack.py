@@ -73,7 +73,9 @@ class Hand():
             self.total = sum([card.value for card in self.cards])
 
     def add_card(self, card):
-        '''Adds a card to the hand'''
+        '''
+        Adds a card to the hand
+        '''
         self.cards.append(card)
         self.__update_total()
         self.__update_door_value()
