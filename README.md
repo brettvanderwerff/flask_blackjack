@@ -1,5 +1,5 @@
 # flask_blackjack
-A WIP socket.IO websocket based BlackJack game. The game was built primarily with JavaScript and Python.
+A WIP socket.IO websocket based BlackJack game. The game was built primarily with JavaScript and Python. Check out the gifs below to see the game in action :)
 
 ## Setup
 
