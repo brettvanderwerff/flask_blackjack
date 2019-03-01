@@ -12,3 +12,6 @@ Progress can be checked by running:
 And navigating to: `http://127.0.0.1:5000`
 
 ![](/readme_images/stay.gif)
+
+
+![](/readme_images/double.gif)
