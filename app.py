@@ -168,6 +168,10 @@ def push():
     room = request.sid
     socketio.emit('show_notification', 'push', room=room)
     socketio.emit('play_again', room=room)
+    for hand_id, hand in enumerate(GAMES[room].player.hands, 1):
+        if not GAMES[room].player.hands[hand_id].bust:
+            GAMES[room].player.bank += GAMES[room].player.hands[hand_id].bet
+    update_bank(0)
 
 
 def determine_win():
@@ -187,6 +191,9 @@ def determine_win():
 
         if all(GAMES[room].dealer.hands[1].total > total for total in player_hand_totals):
             dealer_win()
+            return
+        else:
+            push()
 
 
 def render_dealer():
