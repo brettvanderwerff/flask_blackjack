@@ -103,7 +103,7 @@ def split():
     socketio.emit('add_controls_container', 2, room=room)
     add_hand_to_dom('player', 2)
     GAMES[room].player.split_cards()
-    socketio.emit('transition_card', room=room)
+    socketio.emit('transition_card', room=room) #needed to keep game at round one during the split
     hit('player-hand', 1)
     hit('player-hand', 2)
 
@@ -247,7 +247,7 @@ def render_player():
                                   room=room)
                 else:
                     socketio.emit('render_hand_control',
-                                  data=(hand_id, 'hitbutton', 'staybutton', 'doublebutton'),
+                                  data=(hand_id, 'hitbutton', 'staybutton', 'splitbutton', 'doublebutton'),
                                   room=room)
 
             elif GAMES[room].player.hands[hand_id].can_double:
@@ -270,7 +270,6 @@ def render_table():
     room = request.sid
     render_dealer()
     render_player()
-    GAMES[room].round += 1
 
 
 @socketio.on('deactivate_double')
@@ -384,6 +383,7 @@ def stay(hand_id):
         GAMES[room].player.hands[next_hand].active = True
         render_table()
     except:
+        GAMES[room].round += 1
         dealer_turn()
 
 
