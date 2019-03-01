@@ -31,6 +31,10 @@ If a player is dealt a pair, they will have the option to split their hand in tw
 
 ![](/readme_images/split.gif)
 
+## Bug Reports
+
+This is an early development hobby project. There are some bugs still. If you play the game and notice a bug, please raise an issue. :)
+
 
 
 
