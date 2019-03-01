@@ -247,7 +247,7 @@ def render_player():
                                   room=room)
                 else:
                     socketio.emit('render_hand_control',
-                                  data=(hand_id, 'hitbutton', 'staybutton', 'splitbutton', 'doublebutton'),
+                                  data=(hand_id, 'hitbutton', 'staybutton', 'doublebutton'),
                                   room=room)
 
             elif GAMES[room].player.hands[hand_id].can_double:

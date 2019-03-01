@@ -1,15 +1,17 @@
 # flask_blackjack
-A WIP socket.IO websocket based BlackJack game. The game was built primarily with JavaScript and Python
+A WIP socket.IO websocket based BlackJack game. The game was built primarily with JavaScript and Python.
 
-I am still working out some kinks but progress can be checked by cloning the repo and running:
+## Setup
 
-1. `$pip install -r requirements.txt`
+1. Clone the repo
 
-2. `$python app.py`
+2. `$pip install -r requirements.txt`
 
-3. Open browser and navigate to: `http://127.0.0.1:5000`
+3. `$python app.py`
 
-4. Turn on your speakers, the game has music and sound effects. 
+4. Open browser and navigate to: `http://127.0.0.1:5000`
+
+5. Turn on your speakers, the game has music and sound effects. 
 
 ## Hitting and Staying
 
@@ -21,5 +23,14 @@ At each round, players can choose to hit or stay after being dealt a hand. If Pl
 
 Players can also choose to double their bet on the first round of play.
 
-
 ![](/readme_images/double.gif)
+
+## Splitting
+
+If a player is dealt a pair, they will have the option to split their hand in two.
+
+![](/readme_images/split.gif)
+
+
+
+
